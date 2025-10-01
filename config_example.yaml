@@ -1,0 +1,49 @@
+# MOTシステム設定ファイル例
+# このファイルをconfig.yamlとしてコピーして使用してください
+
+# 物体検出の設定
+detection:
+  model_name: "rtdetrv2_r50vd"     # 使用するモデル (rtdetrv2_r18vd, rtdetrv2_r34vd, rtdetrv2_r50vd)
+  model_path: null                 # カスタムモデルパス（nullの場合は自動ダウンロード）
+  device: "auto"                   # 実行デバイス (auto, cpu, cuda, mps)
+  confidence_threshold: 0.5        # 検出信頼度の閾値 (0.0-1.0)
+  nms_threshold: 0.4              # Non-Maximum Suppressionの閾値 (0.0-1.0)
+  input_size: [640, 640]          # モデル入力サイズ [height, width]
+
+# 物体追跡の設定
+tracking:
+  tracker_type: "simple"           # 追跡アルゴリズム (現在はsimpleのみ)
+  max_disappeared: 30              # オブジェクトが消失したと判定するフレーム数
+  max_distance: 100.0             # 同一オブジェクトと判定する最大距離（ピクセル）
+  min_hits: 3                     # 確定追跡に必要な最小検出回数
+  use_iou: false                  # IoUベースの追跡を使用するか
+  iou_threshold: 0.3              # IoU閾値（use_iouがtrueの場合）
+
+# 可視化の設定
+visualization:
+  show_confidence: true            # 信頼度スコアを表示
+  show_class_names: true          # クラス名を表示
+  show_track_ids: true            # 追跡IDを表示
+  show_trajectories: true         # 軌跡を表示
+  trajectory_length: 30           # 表示する軌跡の長さ（フレーム数）
+  font_scale: 0.6                 # テキストのフォントサイズ
+  line_thickness: 2               # 線の太さ
+
+# ビデオ処理の設定
+video:
+  target_fps: null                 # 処理速度制限（nullの場合は制限なし）
+  resize_factor: 1.0              # ビデオのリサイズ倍率
+  process_every_n_frames: 1       # N フレームごとに処理（1=全フレーム）
+  save_video: true                # 結果ビデオを保存
+  save_frames: false              # 個別フレームを保存
+  show_progress: true             # 進捗を表示
+
+# 出力の設定
+output:
+  output_dir: "outputs"           # 出力ディレクトリ
+  save_results: true              # 結果データを保存
+  results_format: "json"          # 結果の保存形式 (json, csv, txt)
+  video_codec: "mp4v"            # ビデオコーデック
+
+# 使用例:
+# python main.py --video input.mp4 --config config.yaml
