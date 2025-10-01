@@ -239,11 +239,22 @@ def main():
         # モデル管理の初期化
         print("\\n=== モデル準備 ===")
         model_manager = ModelManager()
-        
+        model_path = None
+        try:
+            model_path = model_manager.download_model(
+                config.config.detection.model_name,
+                force_download=False,
+                show_progress=True,
+            )
+            print(f"モデル重みを準備しました: {model_path}")
+        except Exception as exc:
+            print(f"警告: モデル重みの事前ダウンロードに失敗しました: {exc}")
+
         # 物体検出器の初期化
         print("物体検出器を初期化中...")
         detector = RTDETRDetector(
             model_name=config.config.detection.model_name,
+            model_path=model_path,
             device=config.config.detection.device,
             input_size=tuple(config.config.detection.input_size)
         )

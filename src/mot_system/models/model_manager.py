@@ -29,25 +29,28 @@ class ModelManager:
     # サポートされているモデルの定義
     SUPPORTED_MODELS = {
         'rtdetrv2_r18vd': {
-            'url': 'https://github.com/lyuwenyu/RT-DETR/releases/download/v0.1.0/rtdetrv2_r18vd_coco_from_paddle.pth',
-            'filename': 'rtdetrv2_r18vd_coco.pth',
+            'url': 'https://github.com/lyuwenyu/storage/releases/download/v0.2/rtdetrv2_r18vd_120e_coco_rerun_48.1.pth',
+            'filename': 'rtdetrv2_r18vd_120e_coco_rerun_48.1.pth',
             'description': 'RT-DETRv2 with ResNet-18 backbone',
-            'size_mb': 85,
-            'sha256': None  # 実際のハッシュ値は公式リポジトリから取得
+            'size_mb': 90,
+            'sha256': None,
+            'hub_entry': 'rtdetrv2_r18vd',
         },
         'rtdetrv2_r34vd': {
-            'url': 'https://github.com/lyuwenyu/RT-DETR/releases/download/v0.1.0/rtdetrv2_r34vd_coco_from_paddle.pth',
-            'filename': 'rtdetrv2_r34vd_coco.pth',
+            'url': 'https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r34vd_120e_coco_ema.pth',
+            'filename': 'rtdetrv2_r34vd_120e_coco_ema.pth',
             'description': 'RT-DETRv2 with ResNet-34 backbone',
-            'size_mb': 120,
-            'sha256': None
+            'size_mb': 125,
+            'sha256': None,
+            'hub_entry': 'rtdetrv2_r34vd',
         },
         'rtdetrv2_r50vd': {
-            'url': 'https://github.com/lyuwenyu/RT-DETR/releases/download/v0.1.0/rtdetrv2_r50vd_coco_from_paddle.pth',
-            'filename': 'rtdetrv2_r50vd_coco.pth',
+            'url': 'https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_6x_coco_ema.pth',
+            'filename': 'rtdetrv2_r50vd_6x_coco_ema.pth',
             'description': 'RT-DETRv2 with ResNet-50 backbone',
-            'size_mb': 150,
-            'sha256': None
+            'size_mb': 170,
+            'sha256': None,
+            'hub_entry': 'rtdetrv2_r50vd',
         },
         'yolov8n': {
             'url': 'https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt',
