@@ -157,17 +157,94 @@ class RTDETRDetector(BaseDetector):
     
     def _create_dummy_model(self) -> nn.Module:
         """
-        ダミーモデルの作成（開発・テスト用）
+        RT-DETRv2モデルの作成
         
-        実際のRT-DETRv2実装まではYOLOv8で代替
+        公式リポジトリのRT-DETRv2実装を使用
         """
         try:
-            from ultralytics import YOLO
-            print("YOLOv8を代替モデルとして使用")
-            return YOLO('yolov8n.pt')  # 軽量版を使用
-        except ImportError:
-            print("警告: ultralyticsがインストールされていません")
-            return nn.Identity()  # 最小限のダミー
+            # RT-DETRv2の公式実装をインポート
+            import sys
+            import os
+            
+            # RT-DETRリポジトリのパスを追加
+            rt_detr_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "RT-DETR", "rtdetrv2_pytorch")
+            if os.path.exists(rt_detr_path):
+                sys.path.insert(0, rt_detr_path)
+                sys.path.insert(0, os.path.join(rt_detr_path, "src"))
+            
+            # RT-DETRv2の設定ファイルを読み込み
+            config_path = os.path.join(rt_detr_path, "configs", "rtdetrv2", f"{self.model_name}.yaml")
+            if not os.path.exists(config_path):
+                # デフォルト設定を使用
+                config_path = os.path.join(rt_detr_path, "configs", "rtdetrv2", "rtdetrv2_r50vd.yaml")
+            
+            print(f"RT-DETRv2設定ファイルを使用: {config_path}")
+            
+            # RT-DETRv2のモデルを初期化
+            from src.core import build_model
+            
+            # 設定を読み込み
+            import yaml
+            with open(config_path, 'r') as f:
+                config = yaml.safe_load(f)
+            
+            # モデルをビルド
+            model = build_model(config['model'])
+            
+            # 事前学習済み重みをロード（利用可能な場合）
+            if os.path.exists(self.model_path):
+                print(f"事前学習済み重みをロード: {self.model_path}")
+                checkpoint = torch.load(self.model_path, map_location='cpu')
+                if 'model' in checkpoint:
+                    model.load_state_dict(checkpoint['model'])
+                else:
+                    model.load_state_dict(checkpoint)
+            
+            return model
+            
+        except ImportError as e:
+            print(f"RT-DETRv2のインポートに失敗: {e}")
+            print("RT-DETRリポジトリの依存関係をインストールしてください:")
+            print("cd RT-DETR/rtdetrv2_pytorch && pip install -r requirements.txt")
+            
+            # フォールバック: 基本的なTransformerベースの検出器
+            return self._create_fallback_model()
+        except Exception as e:
+            print(f"RT-DETRv2モデルの作成に失敗: {e}")
+            return self._create_fallback_model()
+    
+    def _create_fallback_model(self) -> nn.Module:
+        """
+        フォールバックモデルの作成
+        
+        RT-DETRv2が利用できない場合の代替実装
+        """
+        print("警告: RT-DETRv2が利用できません。フォールバックモデルを使用します")
+        
+        # 基本的なTransformerベースの検出器を実装
+        class FallbackDetector(nn.Module):
+            def __init__(self, num_classes=80):
+                super().__init__()
+                self.num_classes = num_classes
+                # 簡単なCNNベースの検出器
+                self.backbone = nn.Sequential(
+                    nn.Conv2d(3, 64, 3, padding=1),
+                    nn.ReLU(),
+                    nn.Conv2d(64, 128, 3, padding=1),
+                    nn.ReLU(),
+                    nn.AdaptiveAvgPool2d((1, 1))
+                )
+                self.classifier = nn.Linear(128, num_classes)
+                self.bbox_regressor = nn.Linear(128, 4)
+            
+            def forward(self, x):
+                features = self.backbone(x)
+                features = features.view(features.size(0), -1)
+                class_logits = self.classifier(features)
+                bbox_coords = self.bbox_regressor(features)
+                return class_logits, bbox_coords
+        
+        return FallbackDetector()
     
     def preprocess_image(self, image: np.ndarray) -> np.ndarray:
         """

@@ -86,3 +86,4 @@ coverage.xml
 *.cover
 *.py,cover
 .hypothesis/
+RT-DETR/
